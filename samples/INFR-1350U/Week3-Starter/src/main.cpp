@@ -53,6 +53,13 @@ void GlDebugMessage(GLenum source, GLenum type, GLuint id, GLenum severity, GLsi
 
 GLFWwindow* window;
 
+void GlfwWindowResizedCallback(GLFWwindow* window, int width, int height) {
+
+	glViewport(0, 0,100,100);
+
+}
+
+
 bool initGLFW() {
 	if (glfwInit() == GLFW_FALSE) {
 		LOG_ERROR("Failed to initialize GLFW");
@@ -148,6 +155,21 @@ int main() {
 		0.0f, 0.0f, 1.0f
 	};
 
+	//Interleaving Data
+
+	static const float interleaved[] = {
+	//    X     Y      Z     R      G     B
+		0.5f, -0.5f, 0.5f, 0.0f, 0.0f, 0.0f,
+		0.5f, 0.5f, 0.5f,  0.3f, 0.2f, 0.5f,
+		-0.5f, 0.5f, 0.5f, 1.0f, 1.0f, 0.0f, 
+		0.5f, 0.5f, 0.5f,  1.0f, 1.0f, 1.0f
+	};    
+	
+	VertexBuffer* interleaved_vbo = new VertexBuffer();    
+	interleaved_vbo->LoadData(interleaved, 6 * 4);
+
+	//text that gets replaced=================================
+	/*
 	//VBO - Vertex buffer object
 	GLuint pos_vbo = 0;
 	glGenBuffers(1, &pos_vbo);
@@ -160,6 +182,30 @@ int main() {
 	glBufferData(GL_ARRAY_BUFFER, sizeof(colors), colors, GL_STATIC_DRAW);
 
 	glBindBuffer(GL_ARRAY_BUFFER, pos_vbo);
+	*/
+	//ends====================================================
+
+	//replacement
+
+	VertexBuffer* posVbo = new VertexBuffer();    
+	posVbo->LoadData(points, 9);    
+	VertexBuffer* color_vbo = new VertexBuffer();    
+	color_vbo->LoadData(colors, 9);
+
+	//replacement ends
+
+	//Interleaving Data
+
+	static const uint16_t indices[] = { 
+		0, 1, 2,
+		1, 3, 2 
+	};    
+
+	IndexBuffer* interleaved_ibo = new IndexBuffer();   
+	interleaved_ibo->LoadData(indices, 3 * 2);
+
+	//text that gets replaced=================================
+	/*
 
 	//						index, size, type, normalize?, stride, pointer
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, NULL);
@@ -170,10 +216,61 @@ int main() {
 	glEnableVertexAttribArray(0);//pos
 	glEnableVertexAttribArray(1);//colors
 
+	*/
+	//ends====================================================
+
+	//replacement starts
+
+	VertexArrayObject* vao = new VertexArrayObject(); 
+
+	vao->AddVertexBuffer(posVbo, { 
+		{ 0, 3, GL_FLOAT, false, 0, NULL } 
+		}); 
+
+	vao->AddVertexBuffer(color_vbo, { 
+		{ 1, 3, GL_FLOAT, false, 0, NULL } 
+		});
+
+	//Interleaving Data
+
+	size_t stride = sizeof(float) * 6;    
+	VertexArrayObject* vao2 = new VertexArrayObject();   
+
+	vao2->AddVertexBuffer(interleaved_vbo, { 
+		BufferAttribute(0, 3, GL_FLOAT, false, stride, 0), 
+		BufferAttribute(1, 3, GL_FLOAT, false, stride, sizeof(float) * 3), 
+		});    
+
+	vao2->SetIndexBuffer(interleaved_ibo);
+
+	//replacement ends
+
+	//text that gets replaced=================================
+	/*
+
 	// Load our shaders
 
 	if (!loadShaders())
 		return 1;
+
+	*/
+	//ends====================================================
+
+
+	//replacement starts
+
+	Shader* shader = new Shader(); 
+	shader->LoadShaderPartFromFile("shaders/vertex_shader.glsl", GL_VERTEX_SHADER); 
+	shader->LoadShaderPartFromFile("shaders/frag_shader.glsl", GL_FRAGMENT_SHADER); 
+	shader->Link();
+
+
+	Shader* shader2 = new Shader();
+	shader2->LoadShaderPartFromFile("shaders/vertex_shader.glsl", GL_VERTEX_SHADER);
+	shader2->LoadShaderPartFromFile("shaders/frag_shader2.glsl", GL_FRAGMENT_SHADER);
+	shader2->Link();
+
+	//replacement ends
 
 	// GL states
 	glEnable(GL_DEPTH_TEST);
@@ -194,14 +291,42 @@ int main() {
 		glClearColor(0.2f, 0.2f, 0.2f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+
+		//text that gets replaced=================================
+	/*
+
+
 		glUseProgram(shader_program);
 
 		glDrawArrays(GL_TRIANGLES, 0, 3);
+
+	*/
+	//ends====================================================
+
+		shader->Bind(); 
+		
+		vao->Bind(); 
+		glDrawArrays(GL_TRIANGLES, 0, 3);
+
+		//Interleaving draw
+
+		shader2->Bind();
+
+
+		vao2->Bind(); 
+		glDrawElements(GL_TRIANGLES, interleaved_ibo->GetElementCount(), interleaved_ibo->GetElementType(), nullptr); 
+		vao->UnBind();
+
 
 		glfwSwapBuffers(window);
 	}
 
 	// Clean up the toolkit logger so we don't leak memory
+	delete shader; 
+	delete vao; 
+	delete posVbo; 
+	delete color_vbo;
+
 	Logger::Uninitialize();
 	return 0;
 }
