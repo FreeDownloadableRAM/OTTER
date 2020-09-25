@@ -67,7 +67,7 @@ bool initGLFW() {
 	}
 
 	//Create a new GLFW window
-	window = glfwCreateWindow(800, 800, "INFR1350U", nullptr, nullptr);
+	window = glfwCreateWindow(800, 800, "Hossain Alinaqi 100761694", nullptr, nullptr);
 	glfwMakeContextCurrent(window);
 
 	return true;
