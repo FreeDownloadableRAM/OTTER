@@ -83,7 +83,7 @@ bool initGLFW() {
 #endif
 	
 	//Create a new GLFW window
-	window = glfwCreateWindow(800, 800, "INFR1350U", nullptr, nullptr);
+	window = glfwCreateWindow(800, 800, "Hossain Alinaqi 100761694 texture mixing", nullptr, nullptr);
 	glfwMakeContextCurrent(window);
 
 	// Set our window resized callback
@@ -453,6 +453,8 @@ int main() {
 
 	//Activity
 	materials[0].AdditionalTextures = AdditionalTexture;
+	materials[0].TextureMixing = 0.3f;
+
 	//rock thing
 	materials[1].Albedo = diffuse;
 	materials[1].Specular = specular;
@@ -460,6 +462,7 @@ int main() {
 	
 	//Activity
 	materials[1].AdditionalTextures = AdditionalTexture;
+	materials[1].TextureMixing = 0.5f;
 
 	materials[2].Albedo = diffuse;
 	materials[2].Specular = specular;
@@ -467,6 +470,7 @@ int main() {
 
 	//Activity
 	materials[2].AdditionalTextures = AdditionalTexture;
+	materials[2].TextureMixing = 0.8f;
 
 	materials[3].Albedo = diffuse;
 	materials[3].Specular = specular;
@@ -474,6 +478,7 @@ int main() {
 
 	//Activity
 	materials[3].AdditionalTextures = AdditionalTexture;
+	materials[3].TextureMixing = 0.6f;
 
 	//insert end
 
@@ -558,11 +563,11 @@ int main() {
 
 			//activity
 			
-			shader->SetUniform("u_TextureMixing", ix / 16.0f);
-			shader->SetUniform("u_TextureMixing", 1 / 16.0f);
-			shader->SetUniform("u_TextureMixing", 2 / 16.0f);
-			shader->SetUniform("u_TextureMixing", 3 / 16.0f);
-
+			//shader->SetUniform("u_TextureMixing", ix / 16.0f);
+			//shader->SetUniform("u_TextureMixing", 1 / 16.0f);
+			//shader->SetUniform("u_TextureMixing", 2 / 16.0f);
+			//shader->SetUniform("u_TextureMixing", 3 / 16.0f);
+			shader->SetUniform("u_TextureMixing", materials[ix].TextureMixing);
 
 			//shader->SetUniform("u_TextureMixing", materials[ix].TextureMixing);
 			//shader->SetUniform("u_TextureMixing", materials[ix].Shininess);
