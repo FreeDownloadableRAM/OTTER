@@ -25,7 +25,6 @@
 #include "MeshFactory.h"
 #include "NotObjLoader.h"
 #include "VertexTypes.h"
-#include "ObjLoader.h"
 
 #define LOG_GL_NOTIFICATIONS
 
@@ -61,9 +60,6 @@ void GlDebugMessage(GLenum source, GLenum type, GLuint id, GLenum severity, GLsi
 	}
 }
 
-
-
-
 GLFWwindow* window;
 Camera::sptr camera = nullptr;
 
@@ -72,7 +68,7 @@ void GlfwWindowResizedCallback(GLFWwindow* window, int width, int height) {
 	camera->ResizeWindow(width, height);
 }
 
-bool initGLFW() {
+bool InitGLFW() {
 	if (glfwInit() == GLFW_FALSE) {
 		LOG_ERROR("Failed to initialize GLFW");
 		return false;
@@ -92,7 +88,7 @@ bool initGLFW() {
 	return true;
 }
 
-bool initGLAD() {
+bool InitGLAD() {
 	if (gladLoadGLLoader((GLADloadproc)glfwGetProcAddress) == 0) {
 		LOG_ERROR("Failed to initialize Glad");
 		return false;
@@ -179,39 +175,15 @@ int main() {
 	Logger::Init(); // We'll borrow the logger from the toolkit, but we need to initialize it
 
 	//Initialize GLFW
-	if (!initGLFW())
+	if (!InitGLFW())
 		return 1;
 
 	//Initialize GLAD
-	if (!initGLAD())
+	if (!InitGLAD())
 		return 1;
 
-	//Testobj.txt
-	std::vector<glm::vec3> positions;
-	std::vector<glm::vec3> normals;
-	std::vector<glm::vec2> uvs;
-
-	VertexArrayObject::sptr theVAO = nullptr;
-	bool loader = ObjLoader::LoadFromFile("Crate.obj", positions, uvs, normals);
-
-	theVAO = VertexArrayObject::Create();
-	VertexBuffer::sptr vertices = VertexBuffer::Create();
-	vertices->LoadData(positions.data(), positions.size());
-
-	VertexBuffer::sptr _normals = VertexBuffer::Create();
-	_normals->LoadData(normals.data(), normals.size());
-
-	theVAO = VertexArrayObject::Create();
-
-	theVAO->AddVertexBuffer(vertices, {
-		BufferAttribute(0, 3, GL_FLOAT, false, 0, NULL)
-		});
-	theVAO->AddVertexBuffer(_normals, {
-		BufferAttribute(2, 3, GL_FLOAT, false, 0, NULL)
-		});
-
-
-
+	LOG_INFO(glGetString(GL_RENDERER));
+	LOG_INFO(glGetString(GL_VERSION));
 
 	// Let OpenGL know that we want debug output, and route it to our handler function
 	glEnable(GL_DEBUG_OUTPUT);
@@ -340,25 +312,17 @@ int main() {
 
 	// GL states
 	glEnable(GL_DEPTH_TEST);
-	//glEnable(GL_CULL_FACE);
+	glEnable(GL_CULL_FACE);
 
 	glm::mat4 transform = glm::mat4(1.0f);
 	glm::mat4 transform2 = glm::mat4(1.0f);
 	glm::mat4 transform3 = glm::mat4(1.0f);
-	glm::mat4 transform4 = glm::mat4(1.0f);
-	glm::mat4 transform5 = glm::mat4(1.0f);
 
 	camera = Camera::Create();
-	camera->SetPosition(glm::vec3(0, 8, 8)); // Set initial position
+	camera->SetPosition(glm::vec3(0, 3, 3)); // Set initial position
 	camera->SetUp(glm::vec3(0, 0, 1)); // Use a z-up coordinate system
 	camera->LookAt(glm::vec3(0.0f)); // Look at center of the screen
 	camera->SetFovDegrees(90.0f); // Set an initial FOV
-
-	//camera orthographic
-
-	//ortho switch variable
-	bool isPressed = false;
-	bool isOrtho = false;
 	
 	// This is an example of a key press handling helper. Look at InputHelpers.h an .cpp to see
 	// how this is implemented. Note that the ampersand here is capturing the variables within
@@ -375,12 +339,6 @@ int main() {
 	// Our high-precision timer
 	double lastFrame = glfwGetTime();
 	
-	//translate 
-
-	transform5 = glm::translate(transform, glm::vec3(3.0f, 3.0f, 0.0f));
-
-	
-
 	///// Game loop /////
 	while (!glfwWindowShouldClose(window)) {
 		glfwPollEvents();
@@ -408,12 +366,6 @@ int main() {
 		transform = glm::rotate(glm::mat4(1.0f), static_cast<float>(thisFrame), glm::vec3(0, 1, 0));
 		transform2 = transform * glm::translate(glm::mat4(1.0f), glm::vec3(0, 0.0f, glm::sin(static_cast<float>(thisFrame))));
 		
-		
-		transform4 = glm::rotate(glm::mat4(1.0f), static_cast<float>(thisFrame), glm::vec3(0, 1, 1));
-		transform5 = glm::translate(transform, glm::vec3(3.0f, 3.0f, 0.0f));
-		transform5 = transform5 * glm::rotate(glm::mat4(1.0f), static_cast<float>(thisFrame), glm::vec3(1, 1, 1));
-		
-
 		glClearColor(0.08f, 0.17f, 0.31f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -423,7 +375,6 @@ int main() {
 		shader->SetUniform("u_CamPos", camera->GetPosition());
 
 		// These uniforms update for every object we want to draw
-		/*
 		shader->SetUniformMatrix("u_ModelViewProjection", camera->GetViewProjection() * transform);
 		shader->SetUniformMatrix("u_Model", transform);
 		shader->SetUniformMatrix("u_ModelRotation", glm::mat3(transform));
@@ -437,35 +388,7 @@ int main() {
 		shader->SetUniformMatrix("u_ModelViewProjection", camera->GetViewProjection() * transform3);
 		shader->SetUniformMatrix("u_Model", transform3);
 		shader->SetUniformMatrix("u_ModelRotation", glm::mat3(transform3));
-		vao4->Render();
-		*/
-		shader->SetUniformMatrix("u_ModelViewProjection", camera->GetViewProjection()* transform4);
-		shader->SetUniformMatrix("u_Model", transform4);
-		shader->SetUniformMatrix("u_ModelRotation", glm::mat3(transform4));
-		theVAO->Render();
-
-		shader->SetUniformMatrix("u_ModelViewProjection", camera->GetViewProjection()* transform5);
-		shader->SetUniformMatrix("u_Model", transform5);
-		shader->SetUniformMatrix("u_ModelRotation", glm::mat3(transform5));
-		theVAO->Render();
-
-		shader->UnBind();
-
-		//change camera types, O is for orthagraphic, press O to switch cam state.
-		//isPressed initialized before main loop as boolean false
-
-		if (glfwGetKey(window, GLFW_KEY_O) == GLFW_PRESS && isPressed == false) {
-			isPressed = true;
-			isOrtho = !isOrtho;
-			camera->SetMode(isOrtho);
-
-		}
-		else if (glfwGetKey(window, GLFW_KEY_O) == GLFW_RELEASE && isPressed == true) {
-			isPressed = false;
-			
-		}
-
-
+		vao3->Render();
 
 		RenderImGui();
 

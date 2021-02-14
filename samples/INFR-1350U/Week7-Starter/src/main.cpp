@@ -72,7 +72,7 @@ void GlfwWindowResizedCallback(GLFWwindow* window, int width, int height) {
 	camera->ResizeWindow(width, height);
 }
 
-bool initGLFW() {
+bool InitGLFW() {
 	if (glfwInit() == GLFW_FALSE) {
 		LOG_ERROR("Failed to initialize GLFW");
 		return false;
@@ -83,7 +83,7 @@ bool initGLFW() {
 #endif
 	
 	//Create a new GLFW window
-	window = glfwCreateWindow(800, 800, "Hossain Alinaqi 100761694 texture mixing", nullptr, nullptr);
+	window = glfwCreateWindow(800, 800, "INFR1350U", nullptr, nullptr);
 	glfwMakeContextCurrent(window);
 
 	// Set our window resized callback
@@ -92,7 +92,7 @@ bool initGLFW() {
 	return true;
 }
 
-bool initGLAD() {
+bool InitGLAD() {
 	if (gladLoadGLLoader((GLADloadproc)glfwGetProcAddress) == 0) {
 		LOG_ERROR("Failed to initialize Glad");
 		return false;
@@ -232,22 +232,17 @@ struct Material
 	Texture2D::sptr Albedo;
 	Texture2D::sptr Specular;
 	float           Shininess;
-
-	//activity
-	Texture2D::sptr AdditionalTextures;
-	float           TextureMixing;
-
 };
 
 int main() {
 	Logger::Init(); // We'll borrow the logger from the toolkit, but we need to initialize it
 
 	//Initialize GLFW
-	if (!initGLFW())
+	if (!InitGLFW())
 		return 1;
 
 	//Initialize GLAD
-	if (!initGLAD())
+	if (!InitGLAD())
 		return 1;
 
 	// Let OpenGL know that we want debug output, and route it to our handler function
@@ -294,7 +289,7 @@ int main() {
 	// Load our shaders
 	Shader::sptr shader = Shader::Create();
 	shader->LoadShaderPartFromFile("shaders/vertex_shader.glsl", GL_VERTEX_SHADER);
-	shader->LoadShaderPartFromFile("shaders/frag_blinn_phong_textured.glsl", GL_FRAGMENT_SHADER);  
+	shader->LoadShaderPartFromFile("shaders/frag_blinn_phong_textured.glsl.frag", GL_FRAGMENT_SHADER);  
 	shader->Link();  
 
 	glm::vec3 lightPos = glm::vec3(0.0f, 0.0f, 2.0f);
@@ -387,101 +382,8 @@ int main() {
 
 	// TODO: load textures
 
-	// Load our texture data from a file
-	//Texture2DData::sptr diffuseMap = Texture2DData::LoadFromFile("images/Stone_001_Diffuse.png");
-	//alt file check
-	Texture2DData::sptr diffuseMap = Texture2DData::LoadFromFile("images/box_secondary.png");
-
-	//Texture2DData::sptr specularMap = Texture2DData::LoadFromFile("images/Stone_001_Specular.png");
-	//alt file check
-	Texture2DData::sptr specularMap = Texture2DData::LoadFromFile("images/sample_spec.png");
-
-
-	// Create a texture from the data
-	Texture2D::sptr diffuse = Texture2D::Create();
-	diffuse->LoadData(diffuseMap);
-	Texture2D::sptr specular = Texture2D::Create();
-	specular->LoadData(specularMap);
-
-	// Creating an empty texture
-	Texture2DDescription desc = Texture2DDescription();
-	desc.Width = 1;
-	desc.Height = 1;
-	desc.Format = InternalFormat::RGB8;
-	Texture2D::sptr texture2 = Texture2D::Create(desc);
-	texture2->Clear();
-
-	//load additional Texture ACTIVITY
-
-	// Load our texture data from a file
-	//Texture2DData::sptr diffuseMap2 = Texture2DData::LoadFromFile("images/box_secondary.png");
-
-	//alt file check
-	Texture2DData::sptr diffuseMap2 = Texture2DData::LoadFromFile("images/Stone_001_Diffuse.png");
-
-	//
-
-	//Texture2DData::sptr specularMap2 = Texture2DData::LoadFromFile("images/sample_spec.png");
-	//alt file check
-	Texture2DData::sptr specularMap2 = Texture2DData::LoadFromFile("images/Stone_001_Specular.png");
-
-	// Create a texture from the data
-	Texture2D::sptr diffuse2 = Texture2D::Create();
-	diffuse2->LoadData(diffuseMap2);
-	Texture2D::sptr specular2 = Texture2D::Create();
-	specular2->LoadData(specularMap2);
-
-	// Creating an empty texture
-	Texture2DDescription desc2 = Texture2DDescription();
-	desc2.Width = 1;
-	desc2.Height = 1;
-	desc2.Format = InternalFormat::RGB8;
-	Texture2D::sptr AdditionalTexture = Texture2D::Create(desc2);
-	AdditionalTexture->Clear();
-
-
-
 	// TODO: store some info about our materials for each object
 	
-	// We'll use a temporary lil structure to store some info about our material (we'll expand this later)
-	//boxes and spheres
-	
-	Material materials[4];
-	materials[0].Albedo = diffuse;
-	materials[0].Specular = specular;
-	materials[0].Shininess = 4.0f;
-
-	//Activity
-	materials[0].AdditionalTextures = AdditionalTexture;
-	materials[0].TextureMixing = 0.3f;
-
-	//rock thing
-	materials[1].Albedo = diffuse;
-	materials[1].Specular = specular;
-	materials[1].Shininess = 16.0f;
-	
-	//Activity
-	materials[1].AdditionalTextures = AdditionalTexture;
-	materials[1].TextureMixing = 0.5f;
-
-	materials[2].Albedo = diffuse;
-	materials[2].Specular = specular;
-	materials[2].Shininess = 32.0f;
-
-	//Activity
-	materials[2].AdditionalTextures = AdditionalTexture;
-	materials[2].TextureMixing = 0.8f;
-
-	materials[3].Albedo = diffuse;
-	materials[3].Specular = specular;
-	materials[3].Shininess = 64.0f;
-
-	//Activity
-	materials[3].AdditionalTextures = AdditionalTexture;
-	materials[3].TextureMixing = 0.6f;
-
-	//insert end
-
 	camera = Camera::Create();
 	camera->SetPosition(glm::vec3(0, 3, 3)); // Set initial position
 	camera->SetUp(glm::vec3(0, 0, 1)); // Use a z-up coordinate system
@@ -547,30 +449,9 @@ int main() {
 		shader->SetUniform("s_Diffuse",  0);
 		shader->SetUniform("s_Specular", 1); 
 		
-		//activity
-		shader->SetUniform("s_SecondaryDiffuse", 2);
-
 		// Render all VAOs in our scene
 		for(int ix = 0; ix < 4; ix++) {
 			// TODO: Apply materials
-			// Apply material properties for each instance
-			materials[ix].Albedo->Bind(0);
-			materials[ix].Specular->Bind(1);
-			//activity
-			materials[ix].AdditionalTextures->Bind(2);
-
-			shader->SetUniform("u_Shininess", materials[ix].Shininess);
-
-			//activity
-			
-			//shader->SetUniform("u_TextureMixing", ix / 16.0f);
-			//shader->SetUniform("u_TextureMixing", 1 / 16.0f);
-			//shader->SetUniform("u_TextureMixing", 2 / 16.0f);
-			//shader->SetUniform("u_TextureMixing", 3 / 16.0f);
-			shader->SetUniform("u_TextureMixing", materials[ix].TextureMixing);
-
-			//shader->SetUniform("u_TextureMixing", materials[ix].TextureMixing);
-			//shader->SetUniform("u_TextureMixing", materials[ix].Shininess);
 			RenderVAO(shader, vaos[ix], camera, transforms[ix]);			
 		}
 

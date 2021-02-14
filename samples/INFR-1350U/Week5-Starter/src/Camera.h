@@ -18,10 +18,6 @@ public:
 	Camera();
 	virtual ~Camera() = default;
 
-	mutable bool _isOrtho;
-
-	void SetMode(bool isOrtho);
-
 	/// <summary>
 	/// Sets this camera's position in world space
 	/// </summary>

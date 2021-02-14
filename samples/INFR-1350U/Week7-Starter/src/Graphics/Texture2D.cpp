@@ -21,49 +21,10 @@ Texture2D::~Texture2D() {
 
 void Texture2D::_RecreateTexture() {
 	// TODO: implement (see slides)
-
-	if (_handle != 0) {
-		glDeleteTextures(1, &_handle);
-		_handle = 0;
-	}
-	glCreateTextures(GL_TEXTURE_2D, 1, &_handle);
-	if (_description.Width * _description.Height > 0 && _description.Format != InternalFormat::Unknown)
-	{
-		glTextureStorage2D(_handle, 1, *_description.Format, _description.Width, _description.Height);
-		glTextureParameteri(_handle, GL_TEXTURE_WRAP_S, (GLenum)_description.HorizontalWrap);
-		glTextureParameteri(_handle, GL_TEXTURE_WRAP_T, (GLenum)_description.VerticalWrap);
-		glTextureParameteri(_handle, GL_TEXTURE_MIN_FILTER, (GLenum)_description.MinificationFilter);
-		glTextureParameteri(_handle, GL_TEXTURE_MAG_FILTER, (GLenum)_description.MagnificationFilter);
-	}
 }
 
 void Texture2D::LoadData(const Texture2DData::sptr& data) {
 	// TODO: implement (see slides)
-
-	if (_description.Format == InternalFormat::Unknown) {
-		_description.Format = data->GetRecommendedFormat();
-	}
-	if (_description.Width != data->GetWidth() ||
-		_description.Height != data->GetHeight())
-	{
-		_description.Width = data->GetWidth();
-		_description.Height = data->GetHeight();
-
-		_RecreateTexture();
-	}
-
-	// Align the data store to the size of a single component in
-	// See https://www.khronos.org/registry/OpenGL-Refpages/gl4/html/glPixelStore.xhtml
-	int componentSize = (GLint)GetTexelComponentSize(data->GetPixelType());
-	glPixelStorei(GL_PACK_ALIGNMENT, componentSize);
-	// Upload our data to our image
-	glTextureSubImage2D(_handle, 0, 0, 0, _description.Width, _description.Height, *data->GetFormat(),
-		*data->GetPixelType(), data->GetDataPtr());
-	// We can get better error logs by attaching an object label!
-	if (!data->DebugName.empty()) {
-		glObjectLabel(GL_TEXTURE, _handle, data->DebugName.length(), data->DebugName.c_str());
-	}
-
 }
 
 void Texture2D::Clear(const glm::vec4 color) {

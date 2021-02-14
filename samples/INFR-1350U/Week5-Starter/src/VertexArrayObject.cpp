@@ -62,7 +62,7 @@ void VertexArrayObject::Render() const {
 	if (_indexBuffer != nullptr) {
 		glDrawElements(GL_TRIANGLES, _indexBuffer->GetElementCount(), _indexBuffer->GetElementType(), nullptr);
 	} else {
-		glDrawArrays(GL_TRIANGLES, 0, _vertexCount);
+		glDrawArrays(GL_TRIANGLES, 0, _vertexCount / 3);
 	}
 	UnBind();
 }

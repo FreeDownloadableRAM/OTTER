@@ -13,9 +13,7 @@ Camera::Camera() :
 	_view(glm::mat4(1.0f)),
 	_projection(glm::mat4(1.0f)),
 	_viewProjection(glm::mat4(1.0f)),
-	_isDirty(true),
-	_isOrtho(false)
-
+	_isDirty(true)
 {
 	__CalculateProjection();
 }
@@ -65,27 +63,9 @@ const glm::mat4& Camera::GetViewProjection() const {
 void Camera::__CalculateProjection() {
 	_projection = glm::perspective(_fovRadians, _aspectRatio, _nearPlane, _farPlane);
 	_isDirty = true;
-
-	if (!_isOrtho) {
-		_projection = glm::perspective(_fovRadians, _aspectRatio, _nearPlane, _farPlane);
-		_isDirty = true;
-	}
-	else if (_isOrtho) {
-		_projection = glm::ortho(-8.0f, 8.0f, -8.0f, 8.0f, _nearPlane, _farPlane);
-		_isDirty = true;
-	}
-}
-
-void Camera::SetMode(bool isOrtho)
-{
-	_isOrtho = isOrtho;
-	__CalculateProjection();
 }
 
 void Camera::__CalculateView() {
 	_view = glm::lookAt(_position, _position + _normal, _up);
 	_isDirty = true;
 }
-
-
-
