@@ -70,7 +70,7 @@ void BackendHandler::GlfwWindowResizedCallback(GLFWwindow* window, int width, in
 	{
 		buf.Reshape(width, height);
 	});
-	Application::Instance().ActiveScene->Registry().view<BloomEffect>().each([=](BloomEffect& buf)
+	Application::Instance().ActiveScene->Registry().view<BloomEffect>().each([=](BloomEffect& buf) //midterm
 		{
 			buf.Reshape(width, height);
 		});

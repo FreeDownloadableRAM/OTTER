@@ -87,7 +87,7 @@ int main() {
 		SepiaEffect* sepiaEffect;
 		GreyscaleEffect* greyscaleEffect;
 		ColorCorrectEffect* colorCorrectEffect;
-		BloomEffect* bloomEffect;
+		BloomEffect* bloomEffect; //midterm
 		/*
 		// Creating an empty texture
 		Texture2DDescription desc2 = Texture2DDescription();
@@ -145,7 +145,7 @@ int main() {
 						temp->SetLUT(LUT3D(std::string(input)));
 					}
 				}
-				if (activeEffect == 3)
+				if (activeEffect == 3) //midterm
 				{
 					ImGui::Text("Active Effect: Bloom Effect");
 
@@ -1000,7 +1000,7 @@ int main() {
 				BackendHandler::RenderVAO(renderer.Material->Shader, renderer.Mesh, viewProjection, transform);
 			});
 
-			// Render the mesh
+			// Render the mesh //midterm
 			if (isTextureEnabled == 0) { //off
 			// Start by assuming no shader or material is applied
 
