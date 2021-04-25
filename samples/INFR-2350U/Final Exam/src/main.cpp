@@ -88,6 +88,7 @@ int main() {
 		GreyscaleEffect* greyscaleEffect;
 		ColorCorrectEffect* colorCorrectEffect;
 		BloomEffect* bloomEffect; //midterm
+		DepthEffect* depthEffect; //Final
 		/*
 		// Creating an empty texture
 		Texture2DDescription desc2 = Texture2DDescription();
@@ -164,6 +165,26 @@ int main() {
 						temp->SetDownscale(downscale);
 					}
 					
+				}
+				if (activeEffect == 4) //Final
+				{
+					ImGui::Text("Active Effect: Depth Effect");
+
+					DepthEffect* temp = (DepthEffect*)effects[activeEffect];
+					float maximum = temp->GetMaximum(); // maximum
+					float minimum = temp->GetMinimum(); // minimum 
+
+
+					if (ImGui::SliderFloat("Maximum", &maximum, 5.0f, 10.0f))
+					{
+						temp->SetMaximum(maximum);
+					}
+
+					if (ImGui::SliderFloat("Minimum", &minimum, 0.0f, 4.99f))
+					{
+						temp->SetMinimum(minimum);
+					}
+
 				}
 			}
 			if (ImGui::CollapsingHeader("Environment generation"))
@@ -273,6 +294,11 @@ int main() {
 		//taiga tree
 		Texture2D::sptr pineLeaf = Texture2D::LoadFromFile("images/Taiga_tree_1_leaf.jpg");
 		Texture2D::sptr pineWood = Texture2D::LoadFromFile("images/Taiga_tree_1_wood.jpg");
+		//Finals
+		Texture2D::sptr terrainDirt = Texture2D::LoadFromFile("images/terrain_dirt.jpg");
+		Texture2D::sptr terrainGrass = Texture2D::LoadFromFile("images/terrain_grass.jpg");
+
+		
 		//blank texture
 		Texture2D::sptr blankTexture = Texture2D::LoadFromFile("images/no_texture.jpg");
 		LUT3D testCube("cubes/BrightenedCorrection.cube");
@@ -409,11 +435,42 @@ int main() {
 		noTextureMat->Set("s_Specular", noSpec);
 		noTextureMat->Set("u_Shininess", 0.0f);
 		noTextureMat->Set("u_TextureMix", 0.0f);
+		//Finals ==============================
+		//dirt
+		ShaderMaterial::sptr terrainDirtMat = ShaderMaterial::Create();
+		terrainDirtMat->Shader = shader;
+		terrainDirtMat->Set("s_Diffuse", terrainDirt);
+		terrainDirtMat->Set("s_Specular", noSpec);
+		terrainDirtMat->Set("u_Shininess", 2.0f);
+		terrainDirtMat->Set("u_TextureMix", 0.0f);
+		//grass
+		ShaderMaterial::sptr terraingrassMat = ShaderMaterial::Create();
+		terraingrassMat->Shader = shader;
+		terraingrassMat->Set("s_Diffuse", terrainGrass);
+		terraingrassMat->Set("s_Specular", noSpec);
+		terraingrassMat->Set("u_Shininess", 2.0f);
+		terraingrassMat->Set("u_TextureMix", 0.0f);
+		
+
+		float scenePositionX = 0.0f;
+		float scenePositionY = 0.0f;
+		float scenePositionZ = 0.0f;
+
+		//Rotation
+		float sceneRotationX = 0.0f;
+		float sceneRotationY = 0.0f;
+		float sceneRotationZ = 0.0f;
+
+		//Scale Factor
+		float sceneScaleFactor = 1.0f;
+
+		//Object placements
 
 		GameObject obj1 = scene->CreateEntity("Ground"); 
 		{
 			VertexArrayObject::sptr vao = ObjLoader::LoadFromFile("models/plane.obj");
 			obj1.emplace<RendererComponent>().SetMesh(vao).SetMaterial(grassMat);
+			obj1.get<Transform>().SetLocalPosition(0.0f,0.0f, 0.0f);
 		}
 		//fake rock
 		GameObject obj2 = scene->CreateEntity("monkey_quads");
@@ -459,6 +516,7 @@ int main() {
 			// Bind returns a smart pointer to the behaviour that was added
 			auto pathing = BehaviourBinding::Bind<FollowPathBehaviour>(obj3);
 			// Set up a path for the object to follow
+
 			pathing->Points.push_back({ 0.0f,  1.75f, 0.0f });
 			pathing->Points.push_back({ 0.0f,  2.0f, 0.0f });
 			pathing->Points.push_back({ 0.0f,  -1.75f, 0.0f });
@@ -748,7 +806,45 @@ int main() {
 			obj24.get<Transform>().SetLocalRotation(0.0f, 0.0f, -50.0f);
 			BehaviourBinding::BindDisabled<SimpleMoveBehaviour>(obj24);
 		}
+		
+		/*
+		//Finals
+		GameObject obj3 = scene->CreateEntity("Dirt Terrain Ground");
+		{
+			VertexArrayObject::sptr vao = ObjLoader::LoadFromFile("models/dirt.obj");
+		obj3.emplace<RendererComponent>().SetMesh(vao).SetMaterial(terrainDirtMat); // material set
+		// vertical , rotate around point, horizontal?
+		obj3.get<Transform>().SetLocalPosition(scenePositionX, scenePositionY, scenePositionZ);
+		obj3.get<Transform>().SetLocalRotation(sceneRotationX, sceneRotationY, sceneRotationZ);
+		obj3.get<Transform>().SetLocalScale(sceneScaleFactor, sceneScaleFactor, sceneScaleFactor);//scale down
+		BehaviourBinding::BindDisabled<SimpleMoveBehaviour>(obj3);
+		}
 
+		GameObject obj4 = scene->CreateEntity("Grass Terrain Ground");
+		{
+			VertexArrayObject::sptr vao = ObjLoader::LoadFromFile("models/grass.obj");
+			obj4.emplace<RendererComponent>().SetMesh(vao).SetMaterial(terraingrassMat); // material set
+			// vertical , rotate around point, horizontal?
+			obj4.get<Transform>().SetLocalPosition(scenePositionX, scenePositionY, scenePositionZ);
+			obj4.get<Transform>().SetLocalRotation(sceneRotationX, sceneRotationY, sceneRotationZ);
+			obj4.get<Transform>().SetLocalScale(sceneScaleFactor, sceneScaleFactor, sceneScaleFactor);//scale down
+			BehaviourBinding::BindDisabled<SimpleMoveBehaviour>(obj4);
+		}
+
+		GameObject obj5 = scene->CreateEntity("Car Body");
+		{
+			VertexArrayObject::sptr vao = ObjLoader::LoadFromFile("models/car body.obj");
+			obj5.emplace<RendererComponent>().SetMesh(vao).SetMaterial(terraingrassMat); // material set
+			// vertical , rotate around point, horizontal?
+			obj5.get<Transform>().SetLocalPosition(scenePositionX, scenePositionY, scenePositionZ);
+			obj5.get<Transform>().SetLocalRotation(sceneRotationX, sceneRotationY, sceneRotationZ);
+			obj5.get<Transform>().SetLocalScale(sceneScaleFactor, sceneScaleFactor, sceneScaleFactor);//scale down
+			BehaviourBinding::BindDisabled<SimpleMoveBehaviour>(obj5);
+		}
+
+		*/
+
+		
 
 		//generation
 		//trees
@@ -770,6 +866,8 @@ int main() {
 		EnvironmentGenerator::AddObjectToGeneration("models/simpleRock.obj", simpleFloraMat, 40,
 			spawnFromHere, spawnToHere, rockAvoidAreasFrom, rockAvoidAreasTo);
 		EnvironmentGenerator::GenerateEnvironment();
+
+		
 
 		// Create an object to be our camera
 		GameObject cameraObject = scene->CreateEntity("Camera");
@@ -818,10 +916,17 @@ int main() {
 		//bloom
 		GameObject bloomEffectObject = scene->CreateEntity("Bloom Effect");
 		{
-			bloomEffect = &colorCorrectEffectObject.emplace<BloomEffect>();
+			bloomEffect = &bloomEffectObject.emplace<BloomEffect>();
 			bloomEffect->Init(width, height);
 		}
 		effects.push_back(bloomEffect);
+		//depth effect
+		GameObject depthEffectObject = scene->CreateEntity("Depth Effect");
+		{
+			depthEffect = &depthEffectObject.emplace<DepthEffect>();
+			depthEffect->Init(width, height);
+		}
+		effects.push_back(depthEffect);
 
 		#pragma endregion 
 		//////////////////////////////////////////////////////////////////////////////////////////

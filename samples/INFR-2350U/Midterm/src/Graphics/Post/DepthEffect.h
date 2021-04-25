@@ -1,4 +1,5 @@
-#pragma once
+#ifndef __BLOOMBUFFER_H__
+#define __BLOOMBUFFER_H__
 
 #include "Graphics/Post/PostEffect.h"
 
@@ -38,3 +39,4 @@ private:
 
 };
 
+#endif // !__BLOOMBUFFER_H__
