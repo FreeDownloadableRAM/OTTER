@@ -1084,9 +1084,15 @@ int main() {
 			Shader::sptr current = nullptr;
 			ShaderMaterial::sptr currentMat = nullptr;
 			
+			//Finals
+			//glfwGetWindowSize(BackendHandler::window, &width, &height);
 
+			//glViewport(0, 0, width, height);
 			basicEffect->BindBuffer(0);
-
+			
+			//grassMat->Set("u_WindowWidth", (float)width);
+			//grassMat->Set("u_WindowHeight", (float)height);
+			
 			// Iterate over the render group components and draw them
 			renderGroup.each( [&](entt::entity e, RendererComponent& renderer, Transform& transform) {
 				// If the shader has changed, set up it's uniforms
